@@ -57,6 +57,28 @@ All sprites are drawn **procedurally** using canvas `fillRect` calls — no imag
 ### Adding a New Era (Level)
 Each era adds: new background drawing in `drawBackground()` (`sprites.js`), new enemy sprite functions (`sprites.js`), new enemy configs (`enemy.js`), new sublevel configs (`spawner.js`), and a new level config object (`levels.js`).
 
+## Git & GitHub
+
+**Repository:** https://github.com/EitanB91/ages-of-war
+**Remote:** `origin` → `https://github.com/EitanB91/ages-of-war.git`
+**Default branch:** `master`
+**GitHub CLI:** `gh` is installed at `C:\Program Files\GitHub CLI\` and authenticated as `EitanB91`. Add it to PATH with `export PATH="$PATH:/c/Program Files/GitHub CLI"` in bash sessions before using `gh` commands.
+
+### Commit Convention
+Always commit with clear, prefixed messages:
+- `feat:` — new feature or game content
+- `fix:` — bug fix
+- `refactor:` — code restructure without behavior change
+- `chore:` — config, tooling, or docs changes
+
+### Committing and Pushing Changes
+```bash
+git add <specific files>
+git commit -m "feat: description of what changed"
+git push
+```
+Always add files explicitly by name rather than `git add -A` to avoid accidentally committing temp files.
+
 ## Key Behavioral Notes
 - `input.clear()` is called at the **end** of each frame in `main.js` — `justPressed()` is only valid within the same frame it's called
 - Enemy dead-state cleanup happens in `updatePlaying()` — enemies are spliced from the array when `state === 'dead'`
