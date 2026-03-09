@@ -10,6 +10,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Just open `index.html` in a browser. No install, no build, no dev server needed.
 
+## Running Tests
+
+Requires Node.js (installed at `C:\Program Files\nodejs\`).
+
+```bash
+export PATH="$PATH:/c/Program Files/nodejs"
+npm test
+```
+
+Tests live in `tests/qa.test.js`. Globals and stubs are bootstrapped in `tests/setup.js` (mirrors the constants from `js/engine/physics.js` and `js/game/weapons.js`). Run `npm test` after any meaningful code change. Use `/code-qa` to trigger the full QA agent (code review + edge cases + tests).
+
 ## Architecture
 
 ### Global State Pattern

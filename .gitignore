@@ -12,5 +12,6 @@ desktop.ini
 # Logs
 *.log
 
-# Node (if ever added)
+# Node
 node_modules/
+package-lock.json

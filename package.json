@@ -1,0 +1,16 @@
+{
+  "name": "ages-of-war",
+  "version": "1.0.0",
+  "description": "8-bit browser platformer — fight through the ages",
+  "scripts": {
+    "test": "jest --testEnvironment jsdom"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFiles": ["./tests/setup.js"]
+  }
+}
