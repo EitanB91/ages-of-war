@@ -29,8 +29,8 @@ class Projectile {
             this.active = false;
         }
 
-        // Off-screen check
-        if (this.x < -50 || this.x > CANVAS_W + 50 || this.y > CANVAS_H + 50) {
+        // Off-world check
+        if (this.x < -50 || this.x > WORLD_W + 50 || this.y > CANVAS_H + 50) {
             this.active = false;
         }
 
@@ -101,10 +101,14 @@ class Enemy {
         this.pendingProjectile = null;
         this.attackAnimTimer = 0;
         this.attackAnimDur = 400;
+        this.hitFlashTimer = 0; // white flash when struck by player
     }
 
     update(dt, player, projectilesArray) {
         if (this.state === 'dead') return;
+
+        // Hit flash timer
+        if (this.hitFlashTimer > 0) this.hitFlashTimer -= dt * 1000;
 
         // Animation
         this.animTimer += dt * 1000;
@@ -174,13 +178,13 @@ class Enemy {
         applyMovement(this, dt);
         groundEntity(this);
 
-        // Keep on screen loosely
+        // Keep within world bounds
         if (!this.isBoss) {
             if (this.x < -100) this.x = -100;
-            if (this.x + this.w > CANVAS_W + 100) this.x = CANVAS_W + 100 - this.w;
+            if (this.x + this.w > WORLD_W + 100) this.x = WORLD_W + 100 - this.w;
         } else {
             if (this.x < 0) { this.x = 0; this.vx = 0; }
-            if (this.x + this.w > CANVAS_W) { this.x = CANVAS_W - this.w; this.vx = 0; }
+            if (this.x + this.w > WORLD_W) { this.x = WORLD_W - this.w; this.vx = 0; }
         }
     }
 
@@ -199,9 +203,12 @@ class Enemy {
                 projectilesArray.push(proj);
             }
         } else {
-            // Melee - check if player is in range
-            var dx = Math.abs(player.x + player.w / 2 - (this.x + this.w / 2));
-            if (dx <= this.attackRange + 20) {
+            // Melee — check horizontal AND vertical distance
+            // Prevents hitting the player while they are jumping above the enemy
+            var mDx = Math.abs(player.x + player.w / 2 - (this.x + this.w / 2));
+            var mDy = Math.abs(player.y + player.h / 2 - (this.y + this.h / 2));
+            var vertThreshold = (this.h + player.h) * 0.5 + 8;
+            if (mDx <= this.attackRange + 20 && mDy <= vertThreshold) {
                 player.takeDamage(this.dmg);
             }
         }
@@ -238,6 +245,7 @@ class Enemy {
 
         this.hp -= amount;
         this.hurtTimer = this.hurtDuration;
+        this.hitFlashTimer = 180; // white flash on hit
         this.state = 'hurt';
 
         // Knockback
@@ -260,6 +268,11 @@ class Enemy {
             ctx.globalAlpha = 0.4;
         }
 
+        // White hit flash
+        if (this.hitFlashTimer > 0) {
+            ctx.globalAlpha = Math.min(1, ctx.globalAlpha);
+        }
+
         var frame = this.animFrame;
         if (this.state === 'hurt' || this.state === 'attack') frame = 0;
 
@@ -275,6 +288,13 @@ class Enemy {
         }
 
         ctx.globalAlpha = 1.0;
+
+        // White hit flash overlay
+        if (this.hitFlashTimer > 0) {
+            var flashAlpha = (this.hitFlashTimer / 180) * 0.7;
+            ctx.fillStyle = 'rgba(255,255,255,' + flashAlpha + ')';
+            ctx.fillRect(Math.floor(this.x), Math.floor(this.y), this.w, this.h);
+        }
 
         // Draw HP bar above enemy
         this._drawHpBar(ctx);

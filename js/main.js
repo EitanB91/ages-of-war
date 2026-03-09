@@ -13,6 +13,9 @@ var enemies = [];
 var projectiles = [];
 var items = [];
 
+// Camera
+var camera = { x: 0 };
+
 var lastTime = 0;
 
 window.addEventListener('load', function() {
@@ -54,6 +57,22 @@ function update(dt) {
     // Update menu animations
     menus.update(dt);
 
+    // Global pause/resume (ESC) and quit to menu (M) — checked every frame
+    if (input.justPressed('pause')) {
+        if (gameState.state === 'PLAYING' || gameState.state === 'BOSS_FIGHT') {
+            pauseGame();
+        } else if (gameState.state === 'PAUSED') {
+            resumeGame();
+        }
+    }
+    if (input.justPressed('menu') && gameState.state === 'PAUSED') {
+        quitToMenu();
+    }
+    // Resume with Enter too
+    if (input.justPressed('enter') && gameState.state === 'PAUSED') {
+        resumeGame();
+    }
+
     switch(gameState.state) {
         case 'MENU':
             updateMenu(dt);
@@ -72,6 +91,9 @@ function update(dt) {
             break;
         case 'BOSS_FIGHT':
             updateBossFight(dt);
+            break;
+        case 'PAUSED':
+            // Nothing to update while paused
             break;
         case 'GAME_OVER':
             updateGameOver(dt);
@@ -145,6 +167,12 @@ function updatePlaying(dt) {
         }
     }
 
+    // Update camera to follow player (center player on screen)
+    var targetCamX = player.x + player.w / 2 - CANVAS_W / 2;
+    if (targetCamX < 0) targetCamX = 0;
+    if (targetCamX > WORLD_W - CANVAS_W) targetCamX = WORLD_W - CANVAS_W;
+    camera.x += (targetCamX - camera.x) * 0.12; // smooth follow
+
     // Check if sublevel is complete (from spawner)
     if (spawner.isSublevelComplete() && gameState.state === 'PLAYING') {
         triggerSublevelClear();
@@ -201,6 +229,12 @@ function updateBossFight(dt) {
             items.splice(ii, 1);
         }
     }
+
+    // Update camera during boss fight too
+    var targetCamX = player.x + player.w / 2 - CANVAS_W / 2;
+    if (targetCamX < 0) targetCamX = 0;
+    if (targetCamX > WORLD_W - CANVAS_W) targetCamX = WORLD_W - CANVAS_W;
+    camera.x += (targetCamX - camera.x) * 0.12;
 }
 
 function updateLevelUp(dt) {
@@ -252,13 +286,17 @@ function render() {
     // Clear canvas
     ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
 
-    // Always draw background
-    drawBackground(ctx, 0, gameState.sublevel);
+    // Background drawn in screen-space with parallax offset
+    drawBackground(ctx, Math.floor(camera.x), gameState.sublevel);
 
     // Determine if we should draw game objects
-    var drawGame = ['PLAYING', 'LEVELUP', 'BOSS_FIGHT', 'BOSS_INTRO', 'SUBLEVEL_CLEAR'].indexOf(gameState.state) >= 0;
+    var drawGame = ['PLAYING', 'LEVELUP', 'BOSS_FIGHT', 'BOSS_INTRO', 'SUBLEVEL_CLEAR', 'PAUSED'].indexOf(gameState.state) >= 0;
 
     if (drawGame) {
+        // Apply camera transform for world-space objects
+        ctx.save();
+        ctx.translate(-Math.floor(camera.x), 0);
+
         // Draw items
         for (var ii = 0; ii < items.length; ii++) {
             items[ii].draw(ctx);
@@ -277,7 +315,9 @@ function render() {
         // Draw player
         player.draw(ctx);
 
-        // Draw HUD
+        ctx.restore(); // end camera transform
+
+        // Draw HUD (screen-space)
         var killCount = gameState.sublevelKills;
         var totalForSublevel = (gameState.state === 'BOSS_FIGHT') ? 1 : 20;
         hud.draw(ctx, player, killCount, totalForSublevel, gameState.sublevel);
@@ -290,7 +330,6 @@ function render() {
             break;
 
         case 'LEVELUP':
-            // Game objects already drawn above (drawGame includes LEVELUP), just add popup
             menus.drawLevelUpPopup(ctx, gameState.charLevel, gameState.levelUpChoice);
             break;
 
@@ -300,6 +339,10 @@ function render() {
 
         case 'BOSS_INTRO':
             menus.drawBossIntro(ctx);
+            break;
+
+        case 'PAUSED':
+            menus.drawPauseScreen(ctx);
             break;
 
         case 'GAME_OVER':

@@ -7,6 +7,7 @@ var CANVAS_H = 450;
 var GROUND_Y = 380;
 var SCALE = 3;
 var PLAYER_SPEED = 180;
+var WORLD_W = 2400;
 
 function applyGravity(entity, dt) {
     if (!entity.onGround) {
@@ -46,8 +47,8 @@ function clampToScreen(entity) {
         entity.x = 0;
         entity.vx = 0;
     }
-    if (entity.x + entity.w > CANVAS_W) {
-        entity.x = CANVAS_W - entity.w;
+    if (entity.x + entity.w > WORLD_W) {
+        entity.x = WORLD_W - entity.w;
         entity.vx = 0;
     }
 }

@@ -281,19 +281,21 @@ class Player {
         }
     }
 
-    applyWeaponChoice(weaponKey) {
-        var weapon = WEAPONS[weaponKey];
-        if (!weapon) return;
+    applyWeaponChoice(choice) {
+        // choice is {label, sublabel, melee, ranged, statA, statB}
+        // upgrades BOTH weapons at once
+        var meleeWeap = WEAPONS[choice.melee];
+        var rangedWeap = WEAPONS[choice.ranged];
 
-        if (weapon.type === 'melee') {
-            this.meleeWeapon = weaponKey;
-        } else {
-            this.rangedWeapon = weaponKey;
+        if (meleeWeap) {
+            this.meleeWeapon = choice.melee;
+            if (meleeWeap.hpBonus) {
+                this.maxHp += meleeWeap.hpBonus;
+                this.hp = Math.min(this.hp + meleeWeap.hpBonus, this.maxHp);
+            }
         }
-
-        if (weapon.hpBonus) {
-            this.maxHp += weapon.hpBonus;
-            this.hp = Math.min(this.hp + weapon.hpBonus, this.maxHp);
+        if (rangedWeap) {
+            this.rangedWeapon = choice.ranged;
         }
     }
 

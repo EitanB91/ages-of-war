@@ -4,7 +4,8 @@ var SUBLEVEL_CONFIGS = {
     1: {
         name: 'NEANDERTHALS',
         totalToSpawn: 20,
-        spawnInterval: 3000,
+        spawnInterval: 4500,
+        maxConcurrent: 3,
         types: [
             { key: 'neanderthal_MELEE', weight: 0.5 },
             { key: 'neanderthal_RANGED', weight: 0.3 },
@@ -14,7 +15,8 @@ var SUBLEVEL_CONFIGS = {
     2: {
         name: 'BEASTS',
         totalToSpawn: 20,
-        spawnInterval: 2500,
+        spawnInterval: 4000,
+        maxConcurrent: 3,
         types: [
             { key: 'animal_MELEE_0', weight: 0.4 },
             { key: 'animal_MELEE_1', weight: 0.4 },
@@ -24,7 +26,8 @@ var SUBLEVEL_CONFIGS = {
     3: {
         name: 'DINOSAURS',
         totalToSpawn: 20,
-        spawnInterval: 2000,
+        spawnInterval: 3500,
+        maxConcurrent: 3,
         types: [
             { key: 'dino_MELEE_0', weight: 0.5 },
             { key: 'dino_BULK_1',  weight: 0.3 },
@@ -35,6 +38,7 @@ var SUBLEVEL_CONFIGS = {
         name: 'T-REX BOSS',
         totalToSpawn: 1,
         spawnInterval: 1000,
+        maxConcurrent: 1,
         types: [
             { key: 'boss_trex', weight: 1.0 }
         ]
@@ -49,7 +53,8 @@ class Spawner {
         this.spawned = 0;
         this.killed = 0;
         this.spawnTimer = 0;
-        this.spawnInterval = 3000;
+        this.spawnInterval = 4500;
+        this.maxConcurrent = 3;
         this.active = false;
         this.bossSpawned = false;
         this.config = null;
@@ -63,9 +68,10 @@ class Spawner {
 
         this.totalToSpawn = this.config.totalToSpawn;
         this.spawnInterval = this.config.spawnInterval;
+        this.maxConcurrent = this.config.maxConcurrent || 3;
         this.spawned = 0;
         this.killed = 0;
-        this.spawnTimer = 1000; // first spawn after 1 second
+        this.spawnTimer = 1500; // first spawn after 1.5 seconds
         this.active = true;
         this.bossSpawned = sublevelNum === 'boss';
 
@@ -76,6 +82,10 @@ class Spawner {
     update(dt) {
         if (!this.active) return;
         if (this.spawned >= this.totalToSpawn) return;
+
+        // Don't spawn if too many enemies are already on screen
+        var activeCount = this.enemies.filter(function(e) { return e.state !== 'dead'; }).length;
+        if (activeCount >= this.maxConcurrent) return;
 
         this.spawnTimer -= dt * 1000;
         if (this.spawnTimer <= 0) {
@@ -88,17 +98,22 @@ class Spawner {
         if (this.spawned >= this.totalToSpawn) return;
         if (!this.config) return;
 
+        // Check concurrent limit again
+        var activeCount = this.enemies.filter(function(e) { return e.state !== 'dead'; }).length;
+        if (activeCount >= this.maxConcurrent) return;
+
         var typeKey = this._pickRandomType();
         var baseConfig = ENEMY_CONFIGS[typeKey];
         if (!baseConfig) return;
 
-        // Alternate spawn sides
+        // Spawn just outside camera view
+        var camX = (typeof camera !== 'undefined') ? camera.x : 0;
         this._spawnSide = 1 - this._spawnSide;
         var spawnX;
         if (this._spawnSide === 0) {
-            spawnX = -60; // left edge
+            spawnX = camX - 60; // left of camera view
         } else {
-            spawnX = CANVAS_W + 20; // right edge
+            spawnX = camX + CANVAS_W + 30; // right of camera view
         }
 
         var config = Object.assign({}, baseConfig);
@@ -136,8 +151,9 @@ class Spawner {
 
     spawnBoss() {
         this.enemies.length = 0;
+        var camX = (typeof camera !== 'undefined') ? camera.x : 0;
         var config = Object.assign({}, ENEMY_CONFIGS['boss_trex']);
-        config.x = CANVAS_W - 150;
+        config.x = camX + CANVAS_W - 200; // spawn on right side of screen
         var boss = new Enemy(config);
         this.enemies.push(boss);
         this.bossSpawned = true;

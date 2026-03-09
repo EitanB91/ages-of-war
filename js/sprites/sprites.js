@@ -159,11 +159,12 @@ function _drawPlayerLv0(ctx, bx, by, animFrame, legOff) {
     pxAt(ctx, bx, by, 2, 17 - lOff, COLORS.leatherDark, 3, 1);
     pxAt(ctx, bx, by, 7, 17 + lOff, COLORS.leatherDark, 3, 1);
 
-    // Arm holding stick (right arm = left side when facing right)
+    // Arm holding stick
     pxAt(ctx, bx, by, 9, 7, COLORS.skin, 2, 4);
-    // Stick
-    pxAt(ctx, bx, by, 10, 3, COLORS.wood, 1, 6);
-    pxAt(ctx, bx, by, 10, 2, COLORS.woodDark, 1, 1);
+    // Stick — dark outline, 2px wide shaft, bright tip
+    pxAt(ctx, bx, by, 9, 1, COLORS.woodDark, 3, 9);    // shadow/outline
+    pxAt(ctx, bx, by, 10, 2, COLORS.wood, 2, 7);        // shaft
+    pxAt(ctx, bx, by, 10, 1, '#D4A050', 2, 2);          // bright top
 
     // Left arm
     pxAt(ctx, bx, by, 1, 7, COLORS.skin, 2, 4);
@@ -193,11 +194,13 @@ function _drawPlayerLv1(ctx, bx, by, animFrame, legOff) {
     pxAt(ctx, bx, by, 2, 16 - lOff, COLORS.stoneDark, 3, 2);
     pxAt(ctx, bx, by, 7, 16 + lOff, COLORS.stoneDark, 3, 2);
 
-    // Club (right arm up)
+    // Club (right arm up) — big visible head + wide shaft
     pxAt(ctx, bx, by, 9, 7, COLORS.skin, 2, 4);
-    pxAt(ctx, bx, by, 10, 3, COLORS.wood, 2, 5);
-    pxAt(ctx, bx, by, 10, 2, COLORS.woodDark, 2, 2);
-    pxAt(ctx, bx, by, 9, 2, COLORS.woodDark, 3, 1);
+    pxAt(ctx, bx, by, 9, 1, COLORS.woodDark, 4, 10);    // dark outline
+    pxAt(ctx, bx, by, 10, 5, COLORS.wood, 2, 5);         // shaft
+    pxAt(ctx, bx, by, 9, 1, COLORS.woodDark, 5, 4);      // club head (dark)
+    pxAt(ctx, bx, by, 10, 2, COLORS.wood, 3, 3);          // club head (fill)
+    pxAt(ctx, bx, by, 10, 2, '#D4A050', 1, 1);            // highlight
 
     // Left arm
     pxAt(ctx, bx, by, 1, 7, COLORS.skin, 2, 4);
@@ -229,10 +232,12 @@ function _drawPlayerLv2(ctx, bx, by, animFrame, legOff) {
     pxAt(ctx, bx, by, 2, 16 - lOff, COLORS.leatherDark, 4, 2);
     pxAt(ctx, bx, by, 7, 16 + lOff, COLORS.leatherDark, 4, 2);
 
-    // Spear
-    pxAt(ctx, bx, by, 10, 1, COLORS.stone, 2, 3);
-    pxAt(ctx, bx, by, 10, 0, COLORS.stoneLight, 1, 2);
-    pxAt(ctx, bx, by, 10, 3, COLORS.wood, 1, 9);
+    // Spear — wide shaft, prominent stone head
+    pxAt(ctx, bx, by, 9, 0, COLORS.woodDark, 3, 12);     // dark outline
+    pxAt(ctx, bx, by, 10, 4, COLORS.wood, 2, 8);          // shaft (2px)
+    pxAt(ctx, bx, by, 9, 0, COLORS.stoneDark, 4, 5);      // spear head (dark)
+    pxAt(ctx, bx, by, 10, 1, COLORS.stone, 2, 4);          // spear head (fill)
+    pxAt(ctx, bx, by, 10, 1, COLORS.stoneLight, 1, 2);    // highlight
     pxAt(ctx, bx, by, 9, 7, COLORS.skin, 2, 4);
 
     // Left arm
@@ -278,9 +283,12 @@ function _drawPlayerLv3(ctx, bx, by, animFrame, legOff) {
     pxAt(ctx, bx, by, 2, 16 - lOff, COLORS.leatherDark, 4, 2);
     pxAt(ctx, bx, by, 7, 16 + lOff, COLORS.leatherDark, 4, 2);
 
-    // Obsidian weapon
-    pxAt(ctx, bx, by, 10, 2, COLORS.obsidian, 2, 8);
-    pxAt(ctx, bx, by, 10, 2, COLORS.obsidianShine, 1, 6);
+    // Obsidian weapon — wide blade, bright shine edge
+    pxAt(ctx, bx, by, 8, 1, '#8888FF', 4, 10);           // glow outline
+    pxAt(ctx, bx, by, 9, 2, COLORS.obsidian, 4, 9);      // wide dark blade
+    pxAt(ctx, bx, by, 9, 1, COLORS.obsidian, 4, 3);      // pointed top
+    pxAt(ctx, bx, by, 10, 2, COLORS.obsidianShine, 2, 7); // shine stripe
+    pxAt(ctx, bx, by, 10, 1, '#AAAAFF', 2, 2);            // bright tip
     pxAt(ctx, bx, by, 9, 7, COLORS.skin, 2, 4);
 
     // Left arm
@@ -875,7 +883,7 @@ function drawBackground(ctx, scrollX, sublevel) {
     var W = CANVAS_W;
     var H = CANVAS_H;
 
-    // Layer 1: Sky gradient
+    // Layer 0: Sky gradient (fixed — no parallax)
     var skyColors = ['#FF6B35', '#CC4422', '#7B2D8B', '#2D1155'];
     var segH = GROUND_Y / skyColors.length;
     for (var i = 0; i < skyColors.length; i++) {
@@ -883,43 +891,64 @@ function drawBackground(ctx, scrollX, sublevel) {
         ctx.fillRect(0, i * segH, W, segH + 1);
     }
 
-    // Distant volcano silhouettes
-    ctx.fillStyle = '#1A0A00';
-    _drawVolcano(ctx, 80, GROUND_Y - 120, 60, 130);
-    _drawVolcano(ctx, 600, GROUND_Y - 90, 45, 100);
-    _drawVolcano(ctx, 350, GROUND_Y - 150, 70, 160);
-
-    // Lava glow at volcano tops
-    ctx.fillStyle = 'rgba(255,80,0,0.6)';
-    ctx.fillRect(80 - 5, GROUND_Y - 122, 10, 5);
-    ctx.fillStyle = 'rgba(255,80,0,0.4)';
-    ctx.fillRect(350 - 8, GROUND_Y - 152, 16, 6);
-
-    // Layer 2: Mid - tree silhouettes
-    ctx.fillStyle = '#0A1A05';
-    for (var t = 0; t < 8; t++) {
-        var tx = (t * 110 + 20) % W;
-        var th = 80 + (t % 3) * 20;
-        _drawPalmTree(ctx, tx, GROUND_Y - th, th);
-    }
-
-    // Pterodactyl silhouette
-    var ptX = 550 + Math.sin(Date.now() * 0.0003) * 30;
+    // Pterodactyl silhouette (slow drift, 0.1x)
+    var ptX = ((550 + Math.sin(Date.now() * 0.0003) * 30 - scrollX * 0.1) % (W + 100) + W + 100) % (W + 100) - 50;
     var ptY = 60 + Math.sin(Date.now() * 0.0005) * 15;
     _drawPterodactyl(ctx, ptX, ptY);
 
-    // Layer 3: Large ferns and rocks
-    ctx.fillStyle = '#0D2A06';
-    for (var f = 0; f < 5; f++) {
-        _drawFern(ctx, f * 165 + 30, GROUND_Y - 40, 50);
+    // Layer 1: Distant volcanoes (0.15x parallax)
+    var v1Off = -(scrollX * 0.15);
+    ctx.fillStyle = '#1A0A00';
+    var volcX = [80, 350, 600, 850, 30, 500];
+    var volcH = [130, 160, 100, 140, 110, 90];
+    var volcW = [60, 70, 45, 65, 50, 40];
+    for (var v = 0; v < volcX.length; v++) {
+        var vx = ((volcX[v] + v1Off) % (W * 3) + W * 3) % (W * 3) - W;
+        if (vx > -100 && vx < W + 100) {
+            _drawVolcano(ctx, vx, GROUND_Y - volcH[v], volcW[v], volcH[v]);
+            ctx.fillStyle = 'rgba(255,80,0,0.5)';
+            ctx.fillRect(vx - 5, GROUND_Y - volcH[v] - 2, 10, 5);
+            ctx.fillStyle = '#1A0A00';
+        }
     }
 
-    // Rock formations
-    ctx.fillStyle = '#3A3028';
-    _drawRockFormation(ctx, 150, GROUND_Y - 30);
-    _drawRockFormation(ctx, 550, GROUND_Y - 20);
+    // Layer 2: Mid trees (0.35x parallax)
+    ctx.fillStyle = '#0A1A05';
+    var treeSpacing = 110;
+    var treeOff = -(scrollX * 0.35);
+    var tBase = Math.floor(-treeOff / treeSpacing) * treeSpacing + treeOff;
+    for (var t = 0; t < 12; t++) {
+        var tx = tBase + t * treeSpacing + 20;
+        if (tx > -70 && tx < W + 70) {
+            var th = 80 + (Math.abs(t) % 3) * 20;
+            _drawPalmTree(ctx, tx, GROUND_Y - th, th);
+        }
+    }
 
-    // Ground platform - earthy stone tiles
+    // Layer 3: Ferns and rocks (0.65x parallax)
+    var nearOff = -(scrollX * 0.65);
+
+    ctx.fillStyle = '#0D2A06';
+    var fernSpacing = 165;
+    var fBase = Math.floor(-nearOff / fernSpacing) * fernSpacing + nearOff;
+    for (var f = 0; f < 10; f++) {
+        var fx = fBase + f * fernSpacing + 30;
+        if (fx > -80 && fx < W + 80) {
+            _drawFern(ctx, fx, GROUND_Y - 40, 50);
+        }
+    }
+
+    ctx.fillStyle = '#3A3028';
+    var rockSpacing = 400;
+    var rBase = Math.floor(-nearOff / rockSpacing) * rockSpacing + nearOff;
+    for (var r = 0; r < 6; r++) {
+        var rx = rBase + r * rockSpacing + 150;
+        if (rx > -80 && rx < W + 80) {
+            _drawRockFormation(ctx, rx, GROUND_Y - 30 + (r % 2) * 10);
+        }
+    }
+
+    // Ground platform (1:1 scroll — tiles shift with camera)
     var groundColor = '#6B4F1A';
     var groundDark  = '#3A2A08';
     var groundLight = '#8B6A2A';
@@ -927,23 +956,23 @@ function drawBackground(ctx, scrollX, sublevel) {
     ctx.fillStyle = groundColor;
     ctx.fillRect(0, GROUND_Y, W, H - GROUND_Y);
 
-    // Stone tile pattern
     ctx.fillStyle = groundDark;
-    for (var gx = 0; gx < W; gx += 40) {
+    var tileOff = scrollX % 40;
+    for (var gx = -tileOff; gx < W; gx += 40) {
         ctx.fillRect(gx, GROUND_Y, 2, H - GROUND_Y);
     }
     for (var gy = GROUND_Y; gy < H; gy += 20) {
         ctx.fillRect(0, gy, W, 2);
     }
 
-    // Ground top highlight
     ctx.fillStyle = groundLight;
     ctx.fillRect(0, GROUND_Y, W, 4);
 
-    // Grass tufts
+    // Grass tufts (tiled at 1:1)
     ctx.fillStyle = '#2A5A10';
-    for (var gr = 0; gr < 20; gr++) {
-        var gxx = gr * 42 + 5;
+    var grassOff = scrollX % 42;
+    for (var gr = 0; gr < 22; gr++) {
+        var gxx = gr * 42 + 5 - grassOff;
         ctx.fillRect(gxx, GROUND_Y - 5, 3, 6);
         ctx.fillRect(gxx + 5, GROUND_Y - 3, 2, 4);
         ctx.fillRect(gxx - 3, GROUND_Y - 4, 2, 5);

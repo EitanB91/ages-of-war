@@ -71,7 +71,7 @@ class Menus {
         ctx.fillStyle = '#888';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText('ARROWS:MOVE  A:ATTACK  B:RANGED', CANVAS_W / 2, 220);
+        ctx.fillText('ARROWS:MOVE  A:MELEE  S:RANGED  ESC:PAUSE', CANVAS_W / 2, 220);
 
         // Version/credit
         ctx.font = '6px "Press Start 2P", monospace';
@@ -166,19 +166,59 @@ class Menus {
 
         if (!choiceConfig) return;
 
-        var weapA = WEAPONS[choiceConfig.A];
-        var weapB = WEAPONS[choiceConfig.B];
+        var choiceA = choiceConfig.A;
+        var choiceB = choiceConfig.B;
 
         // Choice A card
-        this._drawWeaponCard(ctx, boxX + 20, boxY + 90, (boxW / 2) - 30, boxH - 110, 'A', weapA, '#FF8844');
+        this._drawChoiceCard(ctx, boxX + 20, boxY + 90, (boxW / 2) - 30, boxH - 110, 'A', choiceA, '#FF8844');
 
         // Choice B card
-        this._drawWeaponCard(ctx, boxX + (boxW / 2) + 10, boxY + 90, (boxW / 2) - 30, boxH - 110, 'B', weapB, '#44CCFF');
+        this._drawChoiceCard(ctx, boxX + (boxW / 2) + 10, boxY + 90, (boxW / 2) - 30, boxH - 110, 'B', choiceB, '#44CCFF');
 
         // Instructions
         if (this._flashOn) {
             this._drawOutlinedText(ctx, 'PRESS A OR B TO CHOOSE', CANVAS_W / 2, boxY + boxH - 20, 8, '#FFFF44', '#000');
         }
+    }
+
+    _drawChoiceCard(ctx, x, y, w, h, key, choice, color) {
+        // Card background
+        ctx.fillStyle = 'rgba(30,15,0,0.9)';
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+        ctx.lineWidth = 1;
+
+        // Key label
+        ctx.font = '14px "Press Start 2P", monospace';
+        ctx.fillStyle = color;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText('[' + key + ']', x + 8, y + 8);
+
+        // Weapon icon using melee weapon type
+        var iconWeapon = WEAPONS[choice.melee] || { type: 'melee', name: choice.label };
+        this._drawWeaponIcon(ctx, x + w / 2, y + 50, iconWeapon, color);
+
+        // Weapon name (same for both A and B)
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(choice.label, x + w / 2, y + 80);
+
+        // Sublabel variant (HEAVY / SWIFT)
+        ctx.font = '7px "Press Start 2P", monospace';
+        ctx.fillStyle = color;
+        ctx.fillText(choice.sublabel, x + w / 2, y + 94);
+
+        // Stats
+        ctx.font = '6px "Press Start 2P", monospace';
+        ctx.fillStyle = '#AAFFAA';
+        ctx.fillText(choice.statA, x + w / 2, y + h - 36);
+        ctx.fillStyle = '#FFDDAA';
+        ctx.fillText(choice.statB, x + w / 2, y + h - 22);
     }
 
     _drawWeaponCard(ctx, x, y, w, h, key, weapon, color) {
@@ -300,6 +340,37 @@ class Menus {
             }
         }
         ctx.lineWidth = 1;
+    }
+
+    drawPauseScreen(ctx) {
+        ctx.fillStyle = 'rgba(0,0,0,0.65)';
+        ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+        // Box
+        ctx.fillStyle = '#0A0A14';
+        ctx.fillRect(200, 130, 400, 190);
+        ctx.strokeStyle = '#8888FF';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(200, 130, 400, 190);
+        ctx.lineWidth = 1;
+
+        this._drawOutlinedText(ctx, 'PAUSED', CANVAS_W / 2, 155, 22, '#8888FF', '#000');
+
+        ctx.fillStyle = '#5A5A5A';
+        ctx.fillRect(220, 196, 360, 2);
+
+        ctx.font = '9px "Press Start 2P", monospace';
+        ctx.fillStyle = '#CCCCCC';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText('ESC / ENTER  -  RESUME', CANVAS_W / 2, 212);
+        ctx.fillStyle = '#CC6644';
+        ctx.fillText('M  -  MAIN MENU', CANVAS_W / 2, 235);
+
+        if (this._flashOn) {
+            ctx.fillStyle = '#8888FF';
+            ctx.fillText('> GAME PAUSED <', CANVAS_W / 2, 270);
+        }
     }
 
     drawSublevelClear(ctx, sublevel) {

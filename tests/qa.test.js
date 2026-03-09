@@ -154,16 +154,40 @@ describe('LEVELUP_CHOICES — validity', () => {
       expect(choice.level).toBe(i + 1);
     });
 
-    test(`choice ${i + 1}: weapon A ('${choice.A}') exists in WEAPONS`, () => {
-      expect(WEAPONS).toHaveProperty(choice.A);
+    test(`choice ${i + 1}: A has required fields`, () => {
+      ['label', 'sublabel', 'melee', 'ranged', 'statA', 'statB'].forEach(field => {
+        expect(choice.A).toHaveProperty(field);
+      });
     });
 
-    test(`choice ${i + 1}: weapon B ('${choice.B}') exists in WEAPONS`, () => {
-      expect(WEAPONS).toHaveProperty(choice.B);
+    test(`choice ${i + 1}: B has required fields`, () => {
+      ['label', 'sublabel', 'melee', 'ranged', 'statA', 'statB'].forEach(field => {
+        expect(choice.B).toHaveProperty(field);
+      });
     });
 
-    test(`choice ${i + 1}: A and B are different weapons`, () => {
-      expect(choice.A).not.toBe(choice.B);
+    test(`choice ${i + 1}: A.melee exists in WEAPONS`, () => {
+      expect(WEAPONS).toHaveProperty(choice.A.melee);
+    });
+
+    test(`choice ${i + 1}: A.ranged exists in WEAPONS`, () => {
+      expect(WEAPONS).toHaveProperty(choice.A.ranged);
+    });
+
+    test(`choice ${i + 1}: B.melee exists in WEAPONS`, () => {
+      expect(WEAPONS).toHaveProperty(choice.B.melee);
+    });
+
+    test(`choice ${i + 1}: B.ranged exists in WEAPONS`, () => {
+      expect(WEAPONS).toHaveProperty(choice.B.ranged);
+    });
+
+    test(`choice ${i + 1}: A and B share same label (same weapon)`, () => {
+      expect(choice.A.label).toBe(choice.B.label);
+    });
+
+    test(`choice ${i + 1}: A.melee and B.melee are different keys`, () => {
+      expect(choice.A.melee).not.toBe(choice.B.melee);
     });
   });
 });

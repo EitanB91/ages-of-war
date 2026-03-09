@@ -10,11 +10,11 @@ class Input {
             'ArrowRight': 'right',
             'ArrowUp':    'jump',
             'KeyA':       'melee',
-            'KeyB':       'ranged',
+            'KeyS':       'ranged',
             'Enter':      'enter',
             'Space':      'jump',
-            'KeyZ':       'melee',
-            'KeyX':       'ranged'
+            'Escape':     'pause',
+            'KeyM':       'menu'
         };
 
         window.addEventListener('keydown', (e) => {

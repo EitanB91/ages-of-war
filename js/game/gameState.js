@@ -52,6 +52,9 @@ function initGame() {
     projectiles.length = 0;
     items.length = 0;
 
+    // Reset camera
+    camera.x = 0;
+
     // Reset HUD boss reference
     hud.setBossEnemy(null);
 
@@ -125,8 +128,9 @@ function triggerLevelUp() {
 function onLevelUpChoice(choiceKey) {
     if (!gameState.levelUpChoice) return;
 
-    var weaponKey = choiceKey === 'A' ? gameState.levelUpChoice.A : gameState.levelUpChoice.B;
-    player.applyWeaponChoice(weaponKey);
+    // choice is a full {label, melee, ranged, ...} object now
+    var choiceObj = choiceKey === 'A' ? gameState.levelUpChoice.A : gameState.levelUpChoice.B;
+    player.applyWeaponChoice(choiceObj);
 
     gameState.levelUpChoice = null;
 
@@ -151,13 +155,14 @@ function nextSublevel_start(sublevelNum) {
     projectiles.length = 0;
     items.length = 0;
 
-    // Reposition player
+    // Reposition player and reset camera
     player.x = CANVAS_W / 2 - 18;
     player.y = GROUND_Y - player.h;
     player.vx = 0;
     player.vy = 0;
     player.hp = player.maxHp;
     player.state = 'idle';
+    camera.x = 0;
 
     spawner.startSublevel(sublevelNum);
 }
@@ -204,4 +209,28 @@ function onBossKilled() {
 function onPlayerDied() {
     gameState.state = 'GAME_OVER';
     audio.stopMusic();
+}
+
+function pauseGame() {
+    if (gameState.state === 'PLAYING' || gameState.state === 'BOSS_FIGHT') {
+        gameState._stateBeforePause = gameState.state;
+        gameState.state = 'PAUSED';
+        audio.stopMusic();
+    }
+}
+
+function resumeGame() {
+    if (gameState.state === 'PAUSED') {
+        gameState.state = gameState._stateBeforePause || 'PLAYING';
+        audio.startMusic('stone_age');
+    }
+}
+
+function quitToMenu() {
+    gameState.state = 'MENU';
+    enemies.length = 0;
+    projectiles.length = 0;
+    items.length = 0;
+    audio.stopMusic();
+    hud.setBossEnemy(null);
 }
